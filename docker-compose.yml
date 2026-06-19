@@ -29,9 +29,34 @@ services:
       - mongodb
     networks:
       - cityflow-net
-
+  redis:
+    image: redis:7-alpine
+    container_name: cityflow-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass cityflow2025 --appendonly yes
+    networks:
+      - cityflow-net
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: cityflow-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:cityflow2025
+      HTTP_USER: student
+      HTTP_PASSWORD: nosql2025
+    depends_on:
+      - redis
+    networks:
+      - cityflow-net
 volumes:
   mongo_data:
+  redis_data:
 
 networks:
   cityflow-net:
